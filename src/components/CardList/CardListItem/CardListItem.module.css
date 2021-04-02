@@ -1,0 +1,49 @@
+.card_container {
+
+    perspective: 1000px;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+    /*width: 100%;*/
+    width: 120px;
+    /*height: 100%;*/
+    height: 140px;
+    border-radius: 15px;
+    margin: 10px auto;
+
+}
+
+.card {
+    max-height: 140px;
+    width: 100%;
+    height: 100%;
+    max-width: 120px;
+    position: relative;
+    perspective: 1000px;
+
+}
+
+.card_img {
+    border-radius: 15px;
+    max-height: 140px;
+    width: 100%;
+    height: 100%;
+    max-width: 120px;
+
+}
+
+.card {
+    transform: rotateY(180deg)
+}
+
+.card.card_flipped {
+    transition: transform .2s;
+    transform: rotateY(180deg) scale(-1, 1);
+}
+
+.card.card_closed {
+    transition: transform .2s;
+    transform: rotateY(180deg);
+
+}
