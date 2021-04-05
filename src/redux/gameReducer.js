@@ -5,6 +5,7 @@ const COMPARE_CARDS = "COMPARE_CARDS";
 
 let initialState = {
     isComparing: false,
+    isMatching: false,
     isAllCardsMatched: false,
     matchingCards: [],
     matchedCards: [],
@@ -14,80 +15,79 @@ let initialState = {
 const gameReducer = (state = initialState, action) => {
 
     let getIndex = (id) => {
-        for (let i = 0; i < state.cards.length; i++) {
-            if (id === state.cards[i].id) {
-                return i;
-            }
-        }
+        return state.cards
+            .findIndex((value) => value.id === id);
     };
 
     switch (action.type) {
+
         case FLIP_CARD: {
+
             let index = getIndex(action.cardId);
-            if (state.matchingCards.length < 2) {
-                state.matchingCards.push(state.cards[index]);
-                state.cards[index].isFlipped = true;
-                if (state.matchingCards.length === 2) {
-                    state.isComparing = true;
-                }
-            }
+
+            state.matchingCards.push(state.cards[index]);
+            state.cards[index].isFlipped = true;
+
+            (state.matchingCards.length === 1) && (state.isMatching = true);
+
+            (state.matchingCards.length === 2) && (state.isComparing = true);
+
             return {
                 ...state,
-                ...state.isComparing,
-                ...state.matchingCards,
-                ...state.cards
+                matchingCards: [...state.matchingCards],
+                cards: [...state.cards]
             }
+
         }
+
         case COMPARE_CARDS: {
 
-            if (state.isComparing) {
-                let card1 = state.matchingCards[0];
-                let card2 = state.matchingCards[1];
-                let index1 = getIndex(card1.id);
-                let index2 = getIndex(card2.id);
+            let [card1, card2] = [state.matchingCards[0], state.matchingCards[1]];
+            let [index1, index2] = [getIndex(card1.id), getIndex(card2.id)];
 
-                if (card1.cardName === card2.cardName) {
-                    state.cards[index1].isMatched = true;
-                    state.cards[index2].isMatched = true;
-                    state.matchedCards.push(card1, card2);
-                    state.matchingCards = [];
-                    if (state.matchedCards.length === 16) {
-                        state.isAllCardsMatched = true;
-                    }
-                } else {
-                    state.cards[index1].isFlipped = false;
-                    state.cards[index2].isFlipped = false;
-                    state.matchingCards = [];
-                }
-                state.isComparing = false;
-                setTimeout(()=>{},5000)
-                console.log('compare ' + state.isComparing);
-                // return {
-                //     ...state,
-                //     ...state.isComparing,
-                //     ...state.matchingCards,
-                //     ...state.cards.values
-                // }
+            if (card1.cardName === card2.cardName) {
+                state.cards[index1].isMatched = true;
+                state.cards[index2].isMatched = true;
+                state.matchingCards = [];
+                state.matchedCards.push(card1, card2);
+                (state.matchedCards.length === 16) && (state.isAllCardsMatched = true);
+            } else {
+                state.matchingCards = [];
+                state.cards[index1].isFlipped = false;
+                state.cards[index2].isFlipped = false;
             }
 
-                return {
-                        ...state,
-                        ...state.isComparing,
-                        ...state.matchingCards,
-                        ...state.cards
-                }
+            state.isComparing = false;
+            state.isMatching = false;
 
-
+            return {
+                ...state,
+                matchingCards: [...state.matchingCards],
+                cards: [...state.cards]
+            }
 
         }
+
         default:
             return state;
-
     }
 };
 
+export const compareCards = (cardId) => ({type: COMPARE_CARDS, cardId});
+
+export const initComparing = (cardId) => {
+    return async (dispatch) => {
+        dispatch(flipCardActionCreator(cardId));
+
+        let startComparing = (ms) => {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        };
+
+        await startComparing(500);
+        await dispatch(compareCards(cardId));
+    }
+};
 
 export const flipCardActionCreator = (cardId) => ({type: FLIP_CARD, cardId});
-export const compareCardActionCreator = () => ({type: COMPARE_CARDS});
 
 export default gameReducer;
