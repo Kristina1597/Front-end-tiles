@@ -1,4 +1,4 @@
-###Memory tiles
+### Memory tiles
 This game allows the user to select tiles, open them in pairs and memorize their contents. The goal of the game is to match all tiles.
 
 ### Run the game
